@@ -1,6 +1,0 @@
-SELECT first_name, last_name, item_name, course_name FROM people as p 
-JOIN items as i ON p.id = i.people_id 
-JOIN enrollments as e ON p.id = e.people_id
-JOIN courses as c ON c.id = e.course_id
-WHERE i.item_name = 'book'
-ORDER BY first_name, last_name DESC;
