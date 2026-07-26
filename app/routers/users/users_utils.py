@@ -5,11 +5,12 @@ import jwt
 from uuid import UUID
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncEngine
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Header
 
 from app.engine import engine
 from app.models.users import users_table, token_whitelist
 from app.schemas.users import UserDB
+from app.schemas.token import Token
 from app.utils.hash_password import (
     get_password_hash,
     verify_password,
@@ -58,15 +59,20 @@ def decode_jwt(token: str):
         raise credentials_exeption
     return payload
 
-async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)]) -> UserDB:
+async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)],
+            csrf: Annotated[str | None, Header(alias="CSRF")] = None) -> UserDB:
     credentials_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    payload = decode_jwt(token)
-    username = payload.get("sub")
+    if not csrf:
+        raise credentials_exeption
+    payload = Token(**decode_jwt(token))
+    username = payload.sub
     if not username:
+        raise credentials_exeption
+    if str(payload.jti) != csrf:
         raise credentials_exeption
     user = await get_user(username)
     if user is None:
