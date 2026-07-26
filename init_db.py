@@ -1,7 +1,7 @@
 import asyncio
 
-from app.engine import engine, metadata_obj
-import app.models.users
+from app.engine import engine
+from app.models.users import metadata_obj
 
 async def init_db():
     async with engine.begin() as conn:
