@@ -1,5 +1,6 @@
 import os
 from pwdlib import PasswordHash
+from pwdlib.exceptions import UnknownHashError
 
 password_hash = PasswordHash.recommended()
 
@@ -9,7 +10,7 @@ DUMMY_HASH = password_hash.hash("daoGiMoiajhsdaih")
 
 assert SECRET_KEY != None, "SECRET_KEY is not defined in environment variables"
 
-def verify_password(plain_password, hashed_password):
+def verify_password(plain_password, hashed_password) -> bool:
     return password_hash.verify(plain_password, hashed_password)
 
 def verify_dummy(password):

@@ -1,13 +1,14 @@
 from datetime import timezone, timedelta, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 import jwt
 from jwt.exceptions import InvalidTokenError
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.utils.oauth_with_cookies import OAuth2PasswordBearerWithCookie
 from app.engine import engine
 from app.models.users import users_table
 from app.schemas.users import UserBase, UserDB
@@ -27,7 +28,7 @@ router = APIRouter(
     tags=["users"]
 )
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
+oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="users/login")
 
 def verify_user(user: UserDB, password: str):
     if not user:
@@ -46,7 +47,7 @@ def create_jwt_token(data: dict, expires_delta: timedelta | None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_user_from_jwt(token: str) -> UserDB:
+async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)]) -> UserDB:
     credentials_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="could not validate credentials",
@@ -73,13 +74,10 @@ async def get_user(engine: AsyncEngine, username: str) -> UserDB:
         result = result.fetchone()
         if not result:
             return None
-        print("log", result._asdict())
         return UserDB(**result._asdict())
 
 @router.get("/me", response_model=UserBase)
-async def get_users_me(request: Request):
-    access_token = request.cookies.get("access_token")
-    user = await get_user_from_jwt(access_token)
+async def get_users_me(user: Annotated[UserDB, Depends(get_user_from_jwt)]):
     return user
 
 @router.post("/login")
@@ -87,7 +85,7 @@ async def login(respone: Response, form_data: Annotated[OAuth2PasswordRequestFor
     user = await get_user(engine, form_data.username)
     user = verify_user(user, form_data.password)
     if not user:
-        raise HTTPException(status_code=400, detail="Incorrect username or password")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect username or password")
     
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
@@ -96,7 +94,7 @@ async def login(respone: Response, form_data: Annotated[OAuth2PasswordRequestFor
 
     respone.set_cookie(
         key="access_token",
-        value=access_token,
+        value=f"Bearer {access_token}",
         httponly=True,
         secure=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -104,7 +102,7 @@ async def login(respone: Response, form_data: Annotated[OAuth2PasswordRequestFor
 
     respone.set_cookie(
         key="refresh_token",
-        value=refresh_token,
+        value=f"Bearer {refresh_token}",
         httponly=True,
         secure=True,
         max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
