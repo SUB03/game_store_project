@@ -7,18 +7,18 @@ from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from sqlalchemy.ext.asyncio import AsyncEngine
 from fastapi import Depends, HTTPException, status, Header
 
-from app.engine import engine
-from app.models.users import users_table, token_whitelist
-from app.schemas.users import UserDB
-from app.schemas.token import Token
-from app.utils.hash_password import (
+from auth_service.engine import engine
+from auth_service.models.users import users_table, token_whitelist
+from auth_service.schemas.users import UserDB
+from auth_service.schemas.token import Token
+from auth_service.utils.hash_password import (
     get_password_hash,
     verify_password,
     verify_dummy, 
     SECRET_KEY,
     ALGORITHM
 )
-from app.utils.oauth_with_cookies import OAuth2PasswordBearerWithCookie
+from auth_service.utils.oauth_with_cookies import OAuth2PasswordBearerWithCookie
 
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="users/login")
 

@@ -1,6 +1,6 @@
 
 from typing import List
-from app.engine import Base
+from auth_service.engine import Base
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 

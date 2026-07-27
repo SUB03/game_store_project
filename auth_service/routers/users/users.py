@@ -6,9 +6,9 @@ from fastapi import APIRouter, Cookie, Depends, HTTPException, Header, status, R
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.security.utils import get_authorization_scheme_param
 
-from app.engine import engine
-from app.schemas.users import UserBase, UserDB
-from app.schemas.token import Token
+from auth_service.engine import engine
+from auth_service.schemas.users import UserBase, UserDB
+from auth_service.schemas.token import Token
 from .users_utils import (
     verify_user,
     get_user_from_jwt,
@@ -75,3 +75,9 @@ async def logout(response: Response, refresh_token: Annotated[str | None, Cookie
     response.delete_cookie("refresh_token")
     
     return {"message": "logged out"}
+
+#TODO: refresh endpoint
+
+#TODO: registration endpoint
+
+#TODO: logout from all devices

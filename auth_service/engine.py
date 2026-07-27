@@ -5,7 +5,7 @@ from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from sqlalchemy.orm import DeclarativeBase
 
-engine = create_async_engine("postgresql+psycopg://postgres:postgres@localhost:5432/learning", echo=True)
+engine = create_async_engine("postgresql+psycopg://postgres:postgres@postgres:5432/learning", echo=True)
 
 metadata_obj = MetaData()
 

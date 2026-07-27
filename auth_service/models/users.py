@@ -8,7 +8,7 @@ from sqlalchemy import (
     DateTime
 )
 
-from app.engine import metadata_obj
+from auth_service.engine import metadata_obj
 
 users_table = Table(
     "users",

@@ -1,7 +1,7 @@
 services:
     postgres:
         image: postgres:18
-        container_name: pg_learning
+        container_name: pg_db
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
@@ -11,15 +11,15 @@ services:
         volumes:
             - pgdata:/var/lib/postgresql
             - ./app/datasets:/datasets
-    
-    pgadmin:
-        image: dpage/pgadmin4
-        container_name: pgadmin_learning
-        environment:
-            PGADMIN_DEFAULT_EMAIL: admin@example.com
-            PGADMIN_DEFAULT_PASSWORD: admin
+    auth_service:
+        build:
+            context: .
+            dockerfile: ./auth_service/dockerfile
+        container_name: auth_service
+        env_file:
+            - .env
         ports:
-            - "5050:80"
+            - "8000:8000"
 volumes:
     pgdata:
         
