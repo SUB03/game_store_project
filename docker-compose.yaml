@@ -1,7 +1,7 @@
 services:
     postgres:
         image: postgres:18
-        container_name: pg_db
+        container_name: postgres
         environment:
             POSTGRES_USER: postgres
             POSTGRES_PASSWORD: postgres
@@ -10,7 +10,7 @@ services:
             - "5432:5432"
         volumes:
             - pgdata:/var/lib/postgresql
-            - ./app/datasets:/datasets
+            - ./auth_service/datasets:/datasets
     auth_service:
         build:
             context: .

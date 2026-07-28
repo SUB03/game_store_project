@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 from fastapi import Depends, HTTPException, status, Header
 
 from auth_service.engine import engine
-from auth_service.models.users import users_table, token_whitelist
+from auth_service.models.models import users_table, token_whitelist
 from auth_service.schemas.users import UserDB
 from auth_service.schemas.token import Token
 from auth_service.utils.hash_password import (
