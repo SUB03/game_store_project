@@ -9,7 +9,8 @@ from sqlalchemy import (
     DateTime,
     Identity,
     Text,
-    JSON
+    JSON,
+    Boolean,
 )
 
 from store_service.engine import metadata_obj
@@ -33,9 +34,9 @@ games = Table(
     Column("website", Text),
     Column("support_url", Text),
     Column("support_email", Text),
-    Column("windows", Text),
-    Column("mac", Text),
-    Column("linux", Text),
+    Column("windows", Boolean),
+    Column("mac", Boolean),
+    Column("linux", Boolean),
     Column("metacritic_score", Integer),
     Column("metacritic_url", Text),
     Column("achievements", Integer, nullable=False),

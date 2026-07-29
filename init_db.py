@@ -48,7 +48,7 @@ if __name__ == "__main__":
             "notes",
             "positive",
             "negative",
-            'discount',
+            "discount",
         ]
         to_convert_columns = [
             "supported_languages",
