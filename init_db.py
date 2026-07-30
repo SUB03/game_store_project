@@ -1,4 +1,4 @@
-import json, ast, sys
+import ast, sys
 
 from sqlalchemy import create_engine, text
 
@@ -8,6 +8,7 @@ def init_auth_tables(engine):
 
 def init_store_table(engine):
     from store_service.models.models import metadata_obj
+    metadata_obj.drop_all(engine)
     metadata_obj.create_all(engine)
 
 if __name__ == "__main__":
@@ -15,7 +16,6 @@ if __name__ == "__main__":
     
     init_auth_tables(engine)
     init_store_table(engine)
-
 
     args = sys.argv
     if len(args) >= 2 and args[1] == "filter":
@@ -53,7 +53,6 @@ if __name__ == "__main__":
         to_convert_columns = [
             "supported_languages",
             "full_audio_languages",
-            "packages",
             "developers",
             "publishers",
             "categories",
@@ -66,14 +65,28 @@ if __name__ == "__main__":
 
         def parse(val):
             try:
-                parsed_list = ast.literal_eval(str(val))
-                return json.dumps(parsed_list, ensure_ascii=False)
+                return ast.literal_eval(str(val))
             except (ValueError, SyntaxError):
-                return json.dumps([])
+                return []
 
+        for col in data_df.columns:
+            if col in to_convert_columns:
+                data_df[col] = data_df[col].apply(parse)
+                data_df[['appid', col]].explode(col, ignore_index=True).to_csv(f"datasets/{col}.csv", index=False)
+                data_df.drop(columns=[col], inplace=True)
+            elif col not in correct_columns:
+                data_df.drop(columns=[col], inplace=True)
+
+        data_df.to_csv("datasets/games_filtered.csv", index=False, header=True)
+
+        #games table
+        df = pd.read_csv("datasets/games_filtered.csv")
+        df["release_date"] = pd.to_datetime(df["release_date"])
+        df.to_sql("games", engine, if_exists="append", index=False)
+
+        # other tables
         for col in to_convert_columns:
-            data_df[col] = data_df[col].apply(parse)
-
-        data_df.to_csv("datasets/games_filtered.csv", index=False, quoting=1)
-
-        # TODO: instert without psql
+            df = pd.read_csv(f"datasets/{col}.csv")
+            df.dropna(subset=[col], inplace=True)
+            df.drop_duplicates(inplace=True)
+            df.to_sql(col, engine, if_exists="append", index=False)
