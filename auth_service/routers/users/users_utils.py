@@ -9,7 +9,7 @@ from fastapi import Depends, HTTPException, status, Header
 
 from auth_service.engine import engine
 from auth_service.models.models import users_table, token_whitelist
-from auth_service.schemas.users import UserDB
+from auth_service.schemas.users import CreateUser, UserDB
 from auth_service.schemas.token import Token
 from auth_service.utils.hash_password import (
     get_password_hash,
@@ -89,3 +89,12 @@ async def get_user(username: str) -> UserDB:
         if not result:
             return None
         return UserDB(**result._asdict())
+
+async def insert_user(userdata: CreateUser):
+    async with engine.begin() as conn:
+        hashed_password = get_password_hash(userdata.password)
+        await conn.execute(users_table.insert().values(
+            username=userdata.username,
+            email=userdata.email,
+            hashed_password=hashed_password
+        ))

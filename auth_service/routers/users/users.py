@@ -2,15 +2,18 @@ from datetime import timezone, timedelta, datetime
 from typing import Annotated
 import uuid
 
+from sqlalchemy.exc import IntegrityError
+
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Header, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.security.utils import get_authorization_scheme_param
 
 from auth_service.engine import engine
-from auth_service.schemas.users import UserBase, UserDB
+from auth_service.schemas.users import UserBase, UserDB, CreateUser
 from auth_service.schemas.token import Token
 from .users_utils import (
     verify_user,
+    insert_user,
     get_user_from_jwt,
     get_user,
     create_jwt_token,
@@ -78,6 +81,41 @@ async def logout(response: Response, refresh_token: Annotated[str | None, Cookie
 
 #TODO: refresh endpoint
 
-#TODO: registration endpoint
+@router.post("/registrate")
+async def registrate(response: Response, user_data: CreateUser):
+    try:
+        await insert_user(user_data)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="user with this email or username already exists"
+        )
+    jti = uuid.uuid4()
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    access_expire = datetime.now(timezone.utc) + access_token_expires
+    refresh_expire = datetime.now(timezone.utc) + refresh_token_expires
+    access_token = create_jwt_token({"sub": user_data.username, "jti": str(jti), "exp": access_expire})
+    refresh_token = create_jwt_token({"sub": user_data.username, "jti": str(jti), "exp": refresh_expire})
+    await store_token_in_db(jti, refresh_expire)
+
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {access_token}",
+        httponly=True,
+        secure=True,
+        max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+    )
+
+    response.set_cookie(
+        key="refresh_token",
+        value=f"Bearer {refresh_token}",
+        httponly=True,
+        secure=True,
+        max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+    )
+
+    return {"message": "authorized", "CSRF": str(jti)}
+
 
 #TODO: logout from all devices

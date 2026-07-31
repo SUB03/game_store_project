@@ -5,6 +5,3 @@ __pycache__/
 *.pyo
 *.pyd
 datasets/
-**/*_pb2_grpc.py
-**/*_pb2.py
-**/*_pb2.pyi

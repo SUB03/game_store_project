@@ -3,7 +3,7 @@ from sqlalchemy import (
     Table,
     Column,
     Integer,
-    String,
+    Text,
     UUID,
     DateTime
 )
@@ -14,8 +14,9 @@ users_table = Table(
     "auth_users",
     metadata_obj,
     Column("id", Integer, primary_key=True),
-    Column("username", String(30), nullable=False, unique=True),
-    Column("hashed_password", String(255), nullable=False),
+    Column("username", Text, nullable=False, unique=True),
+    Column("hashed_password", Text, nullable=False),
+    Column("email", Text, nullable=False, unique=True)
 )
 
 token_whitelist = Table(
