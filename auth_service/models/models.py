@@ -11,7 +11,7 @@ from sqlalchemy import (
 from auth_service.engine import metadata_obj
 
 users_table = Table(
-    "users",
+    "auth_users",
     metadata_obj,
     Column("id", Integer, primary_key=True),
     Column("username", String(30), nullable=False, unique=True),
@@ -19,7 +19,7 @@ users_table = Table(
 )
 
 token_whitelist = Table(
-    "token_whitelist",
+    "auth_token_whitelist",
     metadata_obj,
     Column("uid", UUID, primary_key=True, default=uuid.uuid4), #jti of the refresh token
     Column("expiration_at", DateTime(timezone=True), nullable=False),
