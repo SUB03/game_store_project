@@ -20,6 +20,24 @@ services:
             - .env
         ports:
             - "8000:8000"
+    store_service:
+        build:
+            context: .
+            dockerfile: ./store_service/dockerfile
+        container_name: store_service
+        env_file:
+            - .env
+        ports:
+            - "8001:8001"
+    payment_service:
+        build:
+            context: .
+            dockerfile: ./payment_service/dockerfile
+        container_name: payment_service
+        env_file:
+            - .env
+        ports:
+            - "8002:8002"
 volumes:
     pgdata:
         

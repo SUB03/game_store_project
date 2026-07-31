@@ -24,7 +24,7 @@ async def get_games(page: int = 1, per_page: int = 10):
 
 @router.post("/purchase_game")
 async def purchase_game(app_id: int):
-    channel = grpc.aio.insecure_channel("localhost:8002")
+    channel = grpc.aio.insecure_channel("payment_service:8002")
     stub = store_service.protobuf.payment_service_pb2_grpc.PaymentServiceStub(channel)
 
     request = store_service.protobuf.payment_service_pb2.PaymentRequest(
