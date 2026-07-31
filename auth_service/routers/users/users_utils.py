@@ -22,6 +22,9 @@ from auth_service.utils.oauth_with_cookies import OAuth2PasswordBearerWithCookie
 
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="users/login")
 
+ACCESS_TOKEN_EXPIRE_MINUTES = 15
+REFRESH_TOKEN_EXPIRE_MINUTES = 31 * 24 * 60 
+
 def verify_user(user: UserDB, password: str):
     if not user:
         verify_dummy(password)
@@ -35,7 +38,9 @@ async def delete_token_from_db(uuid: UUID):
         await conn.execute(token_whitelist.delete().where(token_whitelist.c.uid == uuid))
 
 async def get_token_from_db(uuid: UUID):
-    ...
+    async with engine.begin() as conn:
+        result = await conn.execute(token_whitelist.select().where(token_whitelist.c.uid == uuid))
+        return result.fetchone()
 
 async def store_token_in_db(uuid: UUID, expiration_date: datetime):
     async with engine.begin() as conn:
@@ -45,6 +50,15 @@ def create_jwt_token(data: dict) -> str:
     to_encode = data.copy()
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def create_tokens(username: str, jti: str):
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
+    access_expire = datetime.now(timezone.utc) + access_token_expires
+    refresh_expire = datetime.now(timezone.utc) + refresh_token_expires
+    access_token = create_jwt_token({"sub": username, "jti": str(jti), "exp": access_expire})
+    refresh_token = create_jwt_token({"sub": username, "jti": str(jti), "exp": refresh_expire})
+    return access_token, refresh_token, refresh_expire
+    
 def decode_jwt(token: str):
     credentials_exeption = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,6 +87,9 @@ async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)],
     if not username:
         raise credentials_exeption
     if str(payload.jti) != csrf:
+        raise credentials_exeption
+    db_token = await get_token_from_db(payload.jti)
+    if not db_token:
         raise credentials_exeption
     user = await get_user(username)
     if user is None:

@@ -12,6 +12,9 @@ from auth_service.engine import engine
 from auth_service.schemas.users import UserBase, UserDB, CreateUser
 from auth_service.schemas.token import Token
 from .users_utils import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    REFRESH_TOKEN_EXPIRE_MINUTES,
+    create_tokens,
     verify_user,
     insert_user,
     get_user_from_jwt,
@@ -21,9 +24,6 @@ from .users_utils import (
     delete_token_from_db,
     decode_jwt
 )
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 15
-REFRESH_TOKEN_EXPIRE_MINUTES = 31 * 24 * 60 
 
 router = APIRouter(
     prefix="/users",
@@ -42,12 +42,7 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Incorrect username or password")
     
     jti = uuid.uuid4()
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
-    access_expire = datetime.now(timezone.utc) + access_token_expires
-    refresh_expire = datetime.now(timezone.utc) + refresh_token_expires
-    access_token = create_jwt_token({"sub": user.username, "jti": str(jti), "exp": access_expire})
-    refresh_token = create_jwt_token({"sub": user.username, "jti": str(jti), "exp": refresh_expire})
+    access_token, refresh_token, refresh_expire = create_tokens(user.username, str(jti))
     await store_token_in_db(jti, refresh_expire)
 
     response.set_cookie(
@@ -79,7 +74,52 @@ async def logout(response: Response, refresh_token: Annotated[str | None, Cookie
     
     return {"message": "logged out"}
 
-#TODO: refresh endpoint
+@router.post("/refresh")
+async def refresh(
+        response: Response,
+        csrf: Annotated[str | None, Header(alias="CSRF")] = None,
+        refresh_token: Annotated[str | None, Cookie()] = None
+    ):
+    if not refresh_token or not csrf:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    _, refresh_token = get_authorization_scheme_param(refresh_token)
+    payload = Token(**decode_jwt(refresh_token))
+    if str(payload.jti) != csrf:
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="could not validate credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+    await delete_token_from_db(payload.jti)
+
+    jti = uuid.uuid4()
+    access_token, refresh_token, refresh_expire = create_tokens(payload.sub, str(jti))
+    await store_token_in_db(jti, refresh_expire)
+
+    response.set_cookie(
+            key="access_token",
+            value=f"Bearer {access_token}",
+            httponly=True,
+            secure=True,
+            max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        )
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=f"Bearer {refresh_token}",
+        httponly=True,
+        secure=True,
+        max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
+    )
+
+    return {"message": "authorized", "CSRF": str(jti)}
+
+    
 
 @router.post("/registrate")
 async def registrate(response: Response, user_data: CreateUser):
@@ -91,12 +131,7 @@ async def registrate(response: Response, user_data: CreateUser):
             detail="user with this email or username already exists"
         )
     jti = uuid.uuid4()
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    refresh_token_expires = timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
-    access_expire = datetime.now(timezone.utc) + access_token_expires
-    refresh_expire = datetime.now(timezone.utc) + refresh_token_expires
-    access_token = create_jwt_token({"sub": user_data.username, "jti": str(jti), "exp": access_expire})
-    refresh_token = create_jwt_token({"sub": user_data.username, "jti": str(jti), "exp": refresh_expire})
+    access_token, refresh_token, refresh_expire = create_tokens(user_data.username, str(jti))
     await store_token_in_db(jti, refresh_expire)
 
     response.set_cookie(
