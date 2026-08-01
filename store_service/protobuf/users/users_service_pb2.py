@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0store_service/protobuf/users/users_service.proto\x12\x08users.v1\"8\n\x14\x41\x64\x64GameToUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07game_id\x18\x02 \x01(\t\"\x17\n\x15\x41\x64\x64GameToUserResponse\"2\n\x0eHasGameRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\t\x12\x0f\n\x07game_id\x18\x02 \x01(\t\"!\n\x0fHasGameResponse\x12\x0e\n\x06result\x18\x01 \x01(\x08\x32\x9f\x01\n\x0bUserService\x12>\n\x07HasGame\x12\x18.users.v1.HasGameRequest\x1a\x19.users.v1.HasGameResponse\x12P\n\rAddGameToUser\x12\x1e.users.v1.AddGameToUserRequest\x1a\x1f.users.v1.AddGameToUserResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0store_service/protobuf/users/users_service.proto\x12\x08users.v1\"7\n\x14\x41\x64\x64GameToUserRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x61ppid\x18\x02 \x01(\t\"\x17\n\x15\x41\x64\x64GameToUserResponse\"1\n\x0eHasGameRequest\x12\x10\n\x08username\x18\x01 \x01(\t\x12\r\n\x05\x61ppid\x18\x02 \x01(\x03\"!\n\x0fHasGameResponse\x12\x0e\n\x06result\x18\x01 \x01(\x08\x32\x9f\x01\n\x0bUserService\x12>\n\x07HasGame\x12\x18.users.v1.HasGameRequest\x1a\x19.users.v1.HasGameResponse\x12P\n\rAddGameToUser\x12\x1e.users.v1.AddGameToUserRequest\x1a\x1f.users.v1.AddGameToUserResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,13 +32,13 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'store_service.protobuf.user
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_ADDGAMETOUSERREQUEST']._serialized_start=62
-  _globals['_ADDGAMETOUSERREQUEST']._serialized_end=118
-  _globals['_ADDGAMETOUSERRESPONSE']._serialized_start=120
-  _globals['_ADDGAMETOUSERRESPONSE']._serialized_end=143
-  _globals['_HASGAMEREQUEST']._serialized_start=145
-  _globals['_HASGAMEREQUEST']._serialized_end=195
-  _globals['_HASGAMERESPONSE']._serialized_start=197
-  _globals['_HASGAMERESPONSE']._serialized_end=230
-  _globals['_USERSERVICE']._serialized_start=233
-  _globals['_USERSERVICE']._serialized_end=392
+  _globals['_ADDGAMETOUSERREQUEST']._serialized_end=117
+  _globals['_ADDGAMETOUSERRESPONSE']._serialized_start=119
+  _globals['_ADDGAMETOUSERRESPONSE']._serialized_end=142
+  _globals['_HASGAMEREQUEST']._serialized_start=144
+  _globals['_HASGAMEREQUEST']._serialized_end=193
+  _globals['_HASGAMERESPONSE']._serialized_start=195
+  _globals['_HASGAMERESPONSE']._serialized_end=228
+  _globals['_USERSERVICE']._serialized_start=231
+  _globals['_USERSERVICE']._serialized_end=390
 # @@protoc_insertion_point(module_scope)

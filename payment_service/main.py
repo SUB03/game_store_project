@@ -47,7 +47,7 @@ async def serve():
 
     await server.start()
     await server.wait_for_termination()
-    await server.stop(grace=5)
+    await server.stop()
 
 if __name__ == "__main__":
     asyncio.run(serve())

@@ -7,6 +7,7 @@ RUN pip install --no-cache-dir --upgrade pip \
 && pip install --no-cache-dir -r /src/requirements.txt
 
 COPY ./store_service /src/store_service
+COPY .env /src/store_service
 
 EXPOSE 8001
 

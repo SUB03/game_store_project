@@ -19,6 +19,7 @@ from auth_service.utils.hash_password import (
     ALGORITHM
 )
 from auth_service.utils.oauth_with_cookies import OAuth2PasswordBearerWithCookie
+from auth_service.utils.jwt import decode_jwt
 
 oauth2_scheme = OAuth2PasswordBearerWithCookie(tokenUrl="users/login")
 
@@ -58,20 +59,6 @@ def create_tokens(username: str, jti: str):
     access_token = create_jwt_token({"sub": username, "jti": str(jti), "exp": access_expire})
     refresh_token = create_jwt_token({"sub": username, "jti": str(jti), "exp": refresh_expire})
     return access_token, refresh_token, refresh_expire
-    
-def decode_jwt(token: str):
-    credentials_exeption = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-    except InvalidTokenError:
-        raise credentials_exeption
-    except ExpiredSignatureError:
-        raise credentials_exeption
-    return payload
 
 async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)],
             csrf: Annotated[str | None, Header(alias="CSRF")] = None) -> UserDB:
@@ -82,7 +69,7 @@ async def get_user_from_jwt(token: Annotated[str, Depends(oauth2_scheme)],
     )
     if not csrf:
         raise credentials_exeption
-    payload = Token(**decode_jwt(token))
+    payload = Token(**decode_jwt(token, SECRET_KEY, ALGORITHM))
     username = payload.sub
     if not username:
         raise credentials_exeption

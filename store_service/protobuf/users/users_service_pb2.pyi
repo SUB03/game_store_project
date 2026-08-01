@@ -5,24 +5,24 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class AddGameToUserRequest(_message.Message):
-    __slots__ = ("user_id", "game_id")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    GAME_ID_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    game_id: str
-    def __init__(self, user_id: _Optional[str] = ..., game_id: _Optional[str] = ...) -> None: ...
+    __slots__ = ("username", "appid")
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    APPID_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    appid: str
+    def __init__(self, username: _Optional[str] = ..., appid: _Optional[str] = ...) -> None: ...
 
 class AddGameToUserResponse(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
 
 class HasGameRequest(_message.Message):
-    __slots__ = ("user_id", "game_id")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
-    GAME_ID_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    game_id: str
-    def __init__(self, user_id: _Optional[str] = ..., game_id: _Optional[str] = ...) -> None: ...
+    __slots__ = ("username", "appid")
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
+    APPID_FIELD_NUMBER: _ClassVar[int]
+    username: str
+    appid: int
+    def __init__(self, username: _Optional[str] = ..., appid: _Optional[int] = ...) -> None: ...
 
 class HasGameResponse(_message.Message):
     __slots__ = ("result",)

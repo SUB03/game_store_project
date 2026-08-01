@@ -38,6 +38,15 @@ services:
             - .env
         ports:
             - "8002:8002"
+    users_service:
+        build:
+            context: .
+            dockerfile: ./users_service/dockerfile
+        container_name: users_service
+        env_file:
+            - .env
+        ports:
+            - "8003:8003"
 volumes:
     pgdata:
         

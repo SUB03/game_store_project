@@ -6,11 +6,15 @@ from sqlalchemy.exc import IntegrityError
 
 from fastapi import APIRouter, Cookie, Depends, HTTPException, Header, status, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi.security.utils import get_authorization_scheme_param
 
 from auth_service.engine import engine
 from auth_service.schemas.users import UserBase, UserDB, CreateUser
 from auth_service.schemas.token import Token
+from auth_service.utils.jwt import decode_jwt
+from auth_service.utils.hash_password import (
+    SECRET_KEY,
+    ALGORITHM
+)
 from .users_utils import (
     ACCESS_TOKEN_EXPIRE_MINUTES,
     REFRESH_TOKEN_EXPIRE_MINUTES,
@@ -21,7 +25,6 @@ from .users_utils import (
     get_user,
     store_token_in_db,
     delete_token_from_db,
-    decode_jwt
 )
 
 router = APIRouter(
@@ -46,7 +49,7 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
 
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {access_token}",
+        value=access_token,
         httponly=True,
         secure=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -54,7 +57,7 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
 
     response.set_cookie(
         key="refresh_token",
-        value=f"Bearer {refresh_token}",
+        value=refresh_token,
         httponly=True,
         secure=True,
         max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
@@ -65,8 +68,7 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
 @router.post("/logout")
 async def logout(response: Response, refresh_token: Annotated[str | None, Cookie()] = None):
     if refresh_token: 
-        _, refresh_token = get_authorization_scheme_param(refresh_token)
-        payload = Token(**decode_jwt(refresh_token))
+        payload = Token(**decode_jwt(refresh_token, SECRET_KEY, ALGORITHM))
         await delete_token_from_db(payload.jti)
     response.delete_cookie("access_token")
     response.delete_cookie("refresh_token")
@@ -86,8 +88,7 @@ async def refresh(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    _, refresh_token = get_authorization_scheme_param(refresh_token)
-    payload = Token(**decode_jwt(refresh_token))
+    payload = Token(**decode_jwt(refresh_token, SECRET_KEY, ALGORITHM))
     if str(payload.jti) != csrf:
         raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -102,7 +103,7 @@ async def refresh(
 
     response.set_cookie(
             key="access_token",
-            value=f"Bearer {access_token}",
+            value=access_token,
             httponly=True,
             secure=True,
             max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -110,7 +111,7 @@ async def refresh(
     
     response.set_cookie(
         key="refresh_token",
-        value=f"Bearer {refresh_token}",
+        value=refresh_token,
         httponly=True,
         secure=True,
         max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,
@@ -133,7 +134,7 @@ async def registrate(response: Response, user_data: CreateUser):
 
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {access_token}",
+        value=access_token,
         httponly=True,
         secure=True,
         max_age=ACCESS_TOKEN_EXPIRE_MINUTES * 60,
@@ -141,7 +142,7 @@ async def registrate(response: Response, user_data: CreateUser):
 
     response.set_cookie(
         key="refresh_token",
-        value=f"Bearer {refresh_token}",
+        value=refresh_token,
         httponly=True,
         secure=True,
         max_age=REFRESH_TOKEN_EXPIRE_MINUTES * 60,

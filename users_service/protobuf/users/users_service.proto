@@ -3,15 +3,15 @@ syntax = "proto3";
 package users.v1;
 
 message AddGameToUserRequest {
-  string user_id = 1;
-  string game_id = 2;
+  string username = 1;
+  string appid = 2;
 }
 
 message AddGameToUserResponse {}
 
 message HasGameRequest {
-  string user_id = 1;
-  string game_id = 2;
+  string username = 1;
+  int64 appid = 2;
 }
 
 message HasGameResponse {

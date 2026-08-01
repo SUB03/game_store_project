@@ -1,11 +1,15 @@
-from fastapi import HTTPException, routing, Depends
+from typing import Annotated
+
+from fastapi import HTTPException, routing, Depends, status, Request, Cookie
 import grpc
 
+from store_service.schemas.games import Price
 from store_service.engine import engine
 from store_service.models.models import games
-
-import store_service.protobuf.payment.payment_service_pb2_grpc
-import store_service.protobuf.payment.payment_service_pb2
+from store_service.routers.store_utils import get_price, has_game, make_payment
+from store_service.schemas.games import PurchaseGame
+from store_service.utils.jwt import decode_jwt
+from store_service.schemas.token import Token
 
 router = routing.APIRouter(
     prefix="/store",
@@ -23,26 +27,40 @@ async def get_games(page: int = 1, per_page: int = 10):
     return result
 
 @router.post("/purchase_game")
-async def purchase_game(app_id: int):
-    channel = grpc.aio.insecure_channel("payment_service:8002")
-    stub = store_service.protobuf.payment.payment_service_pb2_grpc.PaymentServiceStub(channel)
-
-    request = store_service.protobuf.payment.payment_service_pb2.MakePaymentRequest(
-        user_id="1",
-        appid=str(app_id),
-    )
-
-    try:
-        response: store_service.protobuf.payment.payment_service_pb2.MakePaymentResponse = await stub.MakePayment(request)
-    except grpc.aio.AioRpcError as e:
+async def purchase_game(purchase: PurchaseGame, access_token: Annotated[str | None, Cookie()] = None):
+    if not access_token:
         raise HTTPException(
-            status_code=502,
-            detail=f"Payment service error: {e.code()} - {e.details()}",
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="could not validate credentials"
         )
-    finally:
-        await channel.close()
+    claims = Token(**decode_jwt(access_token))
+    if not purchase.csrf == str(claims.jti):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="could not validate credentials"
+        )
+
+    result = await has_game(username=claims.sub, appid=purchase.appid)
+    if result:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="already owned by the user"
+        )
+
+    game_price = await get_price(purchase.appid)
+    if not game_price:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="appid is not found"
+        )
+    game_price = Price(**game_price._asdict())
+    response = await make_payment(username=claims.sub, appid=purchase.appid, price=str(game_price.price))
 
     return {
         "payment_id": response.payment_id,
         "confirmation_url": response.confirmation_url,
     }
+
+@router.post("/notifications")
+async def notifications(request: Request):
+    return request
