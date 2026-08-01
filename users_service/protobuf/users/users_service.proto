@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package users.v1;
+
+message AddGameToUserRequest {
+  string user_id = 1;
+  string game_id = 2;
+}
+
+message AddGameToUserResponse {}
+
+message HasGameRequest {
+  string user_id = 1;
+  string game_id = 2;
+}
+
+message HasGameResponse {
+  bool result = 1;
+}
+
+service UserService {
+  rpc HasGame(HasGameRequest) returns (HasGameResponse);
+  rpc AddGameToUser(AddGameToUserRequest) returns (AddGameToUserResponse);
+}
