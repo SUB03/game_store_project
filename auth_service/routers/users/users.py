@@ -19,7 +19,6 @@ from .users_utils import (
     insert_user,
     get_user_from_jwt,
     get_user,
-    create_jwt_token,
     store_token_in_db,
     delete_token_from_db,
     decode_jwt
@@ -118,8 +117,6 @@ async def refresh(
     )
 
     return {"message": "authorized", "CSRF": str(jti)}
-
-    
 
 @router.post("/registrate")
 async def registrate(response: Response, user_data: CreateUser):

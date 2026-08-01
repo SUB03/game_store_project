@@ -4,8 +4,8 @@ import grpc
 from store_service.engine import engine
 from store_service.models.models import games
 
-import store_service.protobuf.payment_service_pb2_grpc
-import store_service.protobuf.payment_service_pb2
+import store_service.protobuf.payment.payment_service_pb2_grpc
+import store_service.protobuf.payment.payment_service_pb2
 
 router = routing.APIRouter(
     prefix="/store",
@@ -25,15 +25,15 @@ async def get_games(page: int = 1, per_page: int = 10):
 @router.post("/purchase_game")
 async def purchase_game(app_id: int):
     channel = grpc.aio.insecure_channel("payment_service:8002")
-    stub = store_service.protobuf.payment_service_pb2_grpc.PaymentServiceStub(channel)
+    stub = store_service.protobuf.payment.payment_service_pb2_grpc.PaymentServiceStub(channel)
 
-    request = store_service.protobuf.payment_service_pb2.PaymentRequest(
+    request = store_service.protobuf.payment.payment_service_pb2.MakePaymentRequest(
         user_id="1",
         appid=str(app_id),
     )
 
     try:
-        response: store_service.protobuf.payment_service_pb2.PaymentResponse = await stub.MakePayment(request)
+        response: store_service.protobuf.payment.payment_service_pb2.MakePaymentResponse = await stub.MakePayment(request)
     except grpc.aio.AioRpcError as e:
         raise HTTPException(
             status_code=502,
@@ -43,6 +43,6 @@ async def purchase_game(app_id: int):
         await channel.close()
 
     return {
-        "user_id": response.user_id,
-        "status": response.status,
+        "payment_id": response.payment_id,
+        "confirmation_url": response.confirmation_url,
     }
