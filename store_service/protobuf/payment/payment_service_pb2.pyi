@@ -19,14 +19,14 @@ PAYMENT_STATUS_SUCCEEDED: PaymentStatus
 PAYMENT_STATUS_FAILED: PaymentStatus
 
 class MakePaymentRequest(_message.Message):
-    __slots__ = ("user_id", "appid", "price")
-    USER_ID_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("username", "appid", "price")
+    USERNAME_FIELD_NUMBER: _ClassVar[int]
     APPID_FIELD_NUMBER: _ClassVar[int]
     PRICE_FIELD_NUMBER: _ClassVar[int]
-    user_id: str
-    appid: str
+    username: str
+    appid: int
     price: str
-    def __init__(self, user_id: _Optional[str] = ..., appid: _Optional[str] = ..., price: _Optional[str] = ...) -> None: ...
+    def __init__(self, username: _Optional[str] = ..., appid: _Optional[int] = ..., price: _Optional[str] = ...) -> None: ...
 
 class MakePaymentResponse(_message.Message):
     __slots__ = ("payment_id", "confirmation_url")

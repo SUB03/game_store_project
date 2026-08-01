@@ -19,16 +19,18 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore", env_file=".env")
 
 class UsersServiceServicer(users_service_pb2_grpc.UserServiceServicer):
-    def __init__(self, settings):
+    def __init__(self, settings: Settings):
         self.settings = settings
-        self.engine = create_async_engine("postgresql+psycopg://postgres:postgres@postgres:5432/learning")
+        self.engine = create_async_engine(settings.db_url)
 
     async def AddGameToUser(
         self,
         request: AddGameToUserRequest,
         context: ServicerContext
     ) -> AddGameToUserResponse:
-        ...
+        async with self.engine.begin() as conn:
+            await conn.execute(games_ownership.insert().values(username=request.username, appid=request.appid))
+        return AddGameToUserResponse(appid=request.appid)
 
     async def HasGame(
         self,

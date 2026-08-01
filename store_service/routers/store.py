@@ -6,7 +6,7 @@ import grpc
 from store_service.schemas.games import Price
 from store_service.engine import engine
 from store_service.models.models import games
-from store_service.routers.store_utils import get_price, has_game, make_payment
+from store_service.routers.store_utils import get_price, has_game, make_payment, add_game
 from store_service.schemas.games import PurchaseGame
 from store_service.utils.jwt import decode_jwt
 from store_service.schemas.token import Token
@@ -54,13 +54,19 @@ async def purchase_game(purchase: PurchaseGame, access_token: Annotated[str | No
             detail="appid is not found"
         )
     game_price = Price(**game_price._asdict())
-    response = await make_payment(username=claims.sub, appid=purchase.appid, price=str(game_price.price))
-
-    return {
-        "payment_id": response.payment_id,
-        "confirmation_url": response.confirmation_url,
-    }
+    if game_price.price > 0:
+        response = await make_payment(username=claims.sub, appid=purchase.appid, price=str(game_price.price))
+        return {
+            "payment_id": response.payment_id,
+            "confirmation_url": response.confirmation_url,
+        }
+    else:
+        result = await add_game(username=claims.sub, appid=purchase.appid)
+        return result
+    
 
 @router.post("/notifications")
 async def notifications(request: Request):
-    return request
+    result = await request.body()
+    print(result)
+    return {"status": "OK"}

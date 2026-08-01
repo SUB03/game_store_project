@@ -26,15 +26,21 @@ class PaymentServiceServicer(payment_service_pb2_grpc.PaymentServiceServicer):
         async with YooKassaClient(
             account_id=self.settings.shopid,
             secret_key=self.settings.ukass_api_key
-        ):
+        ) as client:
             yookassa_request = PaymentRequest(
-                amount=Amount(value=request.price, currency="RUB")
+                amount=Amount(value=request.price, currency="RUB"),
+                confirmation=RedirectConfirmationRequest(
+                    type="redirect",
+                    return_url=""
+                )
             ) 
+
+            payment = await client.payment.create(yookassa_request)
             
 
         return payment_service_pb2.MakePaymentResponse(
-            user_id=request.user_id,
-            status = payment_service_pb2.PaymentStatus.PAYMENT_STATUS_SUCCEEDED
+            payment_id=payment.id,
+            confirmation_url=payment.confirmation.confirmation_url
         )
 
 

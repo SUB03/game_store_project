@@ -9,12 +9,14 @@ class AddGameToUserRequest(_message.Message):
     USERNAME_FIELD_NUMBER: _ClassVar[int]
     APPID_FIELD_NUMBER: _ClassVar[int]
     username: str
-    appid: str
-    def __init__(self, username: _Optional[str] = ..., appid: _Optional[str] = ...) -> None: ...
+    appid: int
+    def __init__(self, username: _Optional[str] = ..., appid: _Optional[int] = ...) -> None: ...
 
 class AddGameToUserResponse(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
+    __slots__ = ("appid",)
+    APPID_FIELD_NUMBER: _ClassVar[int]
+    appid: int
+    def __init__(self, appid: _Optional[int] = ...) -> None: ...
 
 class HasGameRequest(_message.Message):
     __slots__ = ("username", "appid")

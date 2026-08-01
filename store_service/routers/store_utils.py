@@ -51,6 +51,27 @@ async def has_game(username: str, appid: int) -> us_pb2.HasGameResponse:
 
     return response.result
 
+async def add_game(username: str, appid: int) -> us_pb2.AddGameToUserResponse:
+    channel = grpc.aio.insecure_channel("users_service:8003")
+    stub = us_pb2_grpc.UserServiceStub(channel)
+
+    request = us_pb2.AddGameToUserRequest(
+        username=username,
+        appid=appid
+    )
+
+    try:
+        response: us_pb2.AddGameToUserResponse = await stub.AddGameToUser(request)
+    except grpc.aio.AioRpcError as e:
+        raise HTTPException(
+            status_code=502,
+            detail=f"Users service error: {e.code()} - {e.details()}",
+        )
+    finally:
+        await channel.close()
+
+    return {"message": "added the game", "appid": response.appid}
+
 async def get_price(appid: int):
     async with engine.begin() as conn:
         result = await conn.execute(games.select().where(games.c.appid==appid))

@@ -4,10 +4,12 @@ package users.v1;
 
 message AddGameToUserRequest {
   string username = 1;
-  string appid = 2;
+  int64 appid = 2;
 }
 
-message AddGameToUserResponse {}
+message AddGameToUserResponse {
+  int64 appid = 1;
+}
 
 message HasGameRequest {
   string username = 1;

@@ -10,8 +10,8 @@ enum PaymentStatus {
 }
 
 message MakePaymentRequest {
-  string user_id = 1;
-  string appid = 2;
+  string username = 1;
+  int64 appid = 2;
   string price = 3;
 }
 
