@@ -19,20 +19,20 @@ class PaymentServiceServicer(payment_service_pb2_grpc.PaymentServiceServicer):
 
     async def MakePayment(
             self,
-            request: payment_service_pb2.PaymentRequest,
+            request: payment_service_pb2.MakePaymentRequest,
             context: grpc.aio.ServicerContext
-    ) -> payment_service_pb2.PaymentResponse:
+    ) -> payment_service_pb2.MakePaymentResponse:
         
         async with YooKassaClient(
             account_id=self.settings.shopid,
             secret_key=self.settings.ukass_api_key
         ):
             yookassa_request = PaymentRequest(
-                amount=Amount(value=request.value, currency="RUB")
+                amount=Amount(value=request.price, currency="RUB")
             ) 
             
 
-        return payment_service_pb2.PaymentResponse(
+        return payment_service_pb2.MakePaymentResponse(
             user_id=request.user_id,
             status = payment_service_pb2.PaymentStatus.PAYMENT_STATUS_SUCCEEDED
         )

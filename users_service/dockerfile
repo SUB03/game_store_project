@@ -1,0 +1,14 @@
+FROM python:3.14
+
+WORKDIR /src
+
+COPY ./users_service/requirements.txt /src/requirements.txt
+RUN pip install --no-cache-dir --upgrade pip \
+&& pip install --no-cache-dir -r /src/requirements.txt
+
+COPY ./users_service /src/users_service
+COPY .env /src/users_service
+
+EXPOSE 8002
+
+CMD ["python", "users_service/main.py"]

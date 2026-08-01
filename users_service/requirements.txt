@@ -1,5 +1,6 @@
 grpcio==1.83.0
 grpcio-tools==1.83.0
+SQLAlchemy==2.0.51
 pydantic==2.13.4
 pydantic-extra-types==2.11.1
 pydantic-settings==2.14.2
