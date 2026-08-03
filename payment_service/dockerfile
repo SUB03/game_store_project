@@ -9,6 +9,14 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY ./payment_service /src/payment_service
 COPY .env /src/payment_service
 
+# installs protos
+COPY ./shared/protobufs /src/protobufs
+WORKDIR /src/protobufs
+RUN rm -rf ./src/*.egg-info ./build .eggs \
+    && python -m pip install --no-cache-dir .
+RUN python -m pip install .
+WORKDIR /src
+
 EXPOSE 8002
 
 CMD ["python", "payment_service/main.py"]

@@ -9,6 +9,15 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY ./users_service /src/users_service
 COPY .env /src/users_service
 
+# installs protos
+COPY ./shared/protobufs /src/protobufs
+WORKDIR /src/protobufs
+RUN rm -rf ./src/*.egg-info ./build .eggs \
+    && python -m pip install --no-cache-dir .
+
+RUN python -m pip install .
+WORKDIR /src
+
 EXPOSE 8002
 
 CMD ["python", "users_service/main.py"]

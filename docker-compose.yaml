@@ -10,7 +10,6 @@ services:
             - "5432:5432"
         volumes:
             - pgdata:/var/lib/postgresql
-            - ./auth_service/datasets:/datasets
     auth_service:
         build:
             context: .
@@ -47,6 +46,16 @@ services:
             - .env
         ports:
             - "8003:8003"
+    
+    victorialogs:
+        image: victoriametrics/victoria-logs:v1.52.0
+        container_name: victorialogs
+        ports:
+            - "9428:9428"
+        volumes:
+            - victoria-logs-data:/victoria-logs-data
+        command:
+            - -storageDataPath=/victoria-logs-data
 volumes:
     pgdata:
-        
+    victoria-logs-data:

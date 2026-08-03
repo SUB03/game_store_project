@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from protobuf.payment import payment_service_pb2 as protobuf_dot_payment_dot_payment__service__pb2
+from payment_proto import payment_service_pb2 as payment__proto_dot_payment__service__pb2
 
 GRPC_GENERATED_VERSION = '1.83.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in protobuf/payment/payment_service_pb2_grpc.py depends on'
+        + ' but the generated code in payment_proto/payment_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -36,13 +36,13 @@ class PaymentServiceStub:
         """
         self.MakePayment = channel.unary_unary(
                 '/PaymentService/MakePayment',
-                request_serializer=protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
-                response_deserializer=protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.FromString,
+                request_serializer=payment__proto_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
+                response_deserializer=payment__proto_dot_payment__service__pb2.MakePaymentResponse.FromString,
                 _registered_method=True)
         self.PaymentNotification = channel.unary_unary(
                 '/PaymentService/PaymentNotification',
-                request_serializer=protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
-                response_deserializer=protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
+                request_serializer=payment__proto_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
+                response_deserializer=payment__proto_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
                 _registered_method=True)
 
 
@@ -66,13 +66,13 @@ def add_PaymentServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'MakePayment': grpc.unary_unary_rpc_method_handler(
                     servicer.MakePayment,
-                    request_deserializer=protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.FromString,
-                    response_serializer=protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.SerializeToString,
+                    request_deserializer=payment__proto_dot_payment__service__pb2.MakePaymentRequest.FromString,
+                    response_serializer=payment__proto_dot_payment__service__pb2.MakePaymentResponse.SerializeToString,
             ),
             'PaymentNotification': grpc.unary_unary_rpc_method_handler(
                     servicer.PaymentNotification,
-                    request_deserializer=protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.FromString,
-                    response_serializer=protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.SerializeToString,
+                    request_deserializer=payment__proto_dot_payment__service__pb2.PaymentNotificationRequest.FromString,
+                    response_serializer=payment__proto_dot_payment__service__pb2.PaymentNotificationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -100,8 +100,8 @@ class PaymentService:
             request,
             target,
             '/PaymentService/MakePayment',
-            protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
-            protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.FromString,
+            payment__proto_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
+            payment__proto_dot_payment__service__pb2.MakePaymentResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -127,8 +127,8 @@ class PaymentService:
             request,
             target,
             '/PaymentService/PaymentNotification',
-            protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
-            protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
+            payment__proto_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
+            payment__proto_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
             options,
             channel_credentials,
             insecure,

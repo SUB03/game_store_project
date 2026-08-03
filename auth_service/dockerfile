@@ -8,6 +8,17 @@ RUN pip install --no-cache-dir --upgrade pip \
 
 COPY ./auth_service /src/auth_service
 
+COPY logger_config.yml /src/auth_service/logger_config.yml
+
+# installs protos
+COPY ./shared/protobufs /src/protobufs
+WORKDIR /src/protobufs
+RUN rm -rf ./src/*.egg-info ./build .eggs \
+    && python -m pip install --no-cache-dir .
+
+RUN python -m pip install .
+WORKDIR /src
+
 EXPOSE 8000
 
 CMD ["fastapi", "run", "auth_service/main.py", "--port", "8000"]

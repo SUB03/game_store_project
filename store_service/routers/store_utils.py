@@ -3,10 +3,10 @@ from fastapi import HTTPException
 
 from store_service.engine import engine
 from store_service.models import games
-import store_service.protobuf.payment.payment_service_pb2_grpc as ps_pb2_grpc
-import store_service.protobuf.payment.payment_service_pb2 as ps_pb2
-import store_service.protobuf.users.users_service_pb2_grpc as us_pb2_grpc
-import store_service.protobuf.users.users_service_pb2 as us_pb2
+import payment_proto.payment_service_pb2_grpc as ps_pb2_grpc
+import payment_proto.payment_service_pb2 as ps_pb2
+import users_proto.users_service_pb2_grpc as us_pb2_grpc
+import users_proto.users_service_pb2 as us_pb2
 
 async def make_payment(username: str, appid: int, price: str) -> ps_pb2.MakePaymentResponse:
     channel = grpc.aio.insecure_channel("payment_service:8002")

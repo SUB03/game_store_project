@@ -1,5 +1,6 @@
 from datetime import timezone, timedelta, datetime
 from typing import Annotated
+import logging
 import uuid
 
 from sqlalchemy.exc import IntegrityError
@@ -27,6 +28,8 @@ from .users_utils import (
     delete_token_from_db,
 )
 
+logger = logging.getLogger("auth_service")
+
 router = APIRouter(
     prefix="/users",
     tags=["users"]
@@ -34,6 +37,7 @@ router = APIRouter(
 
 @router.get("/me", response_model=UserBase)
 async def get_users_me(user: Annotated[UserDB, Depends(get_user_from_jwt)]):
+    logger.info("requested user info", extra={"username": user.username})
     return user
 
 @router.post("/login")
@@ -67,7 +71,8 @@ async def login(response: Response, form_data: Annotated[OAuth2PasswordRequestFo
 
 @router.post("/logout")
 async def logout(response: Response, refresh_token: Annotated[str | None, Cookie()] = None):
-    if refresh_token: 
+    if refresh_token:
+        logger.warning("missing refresh_token cookie")
         payload = Token(**decode_jwt(refresh_token, SECRET_KEY, ALGORITHM))
         await delete_token_from_db(payload.jti)
     response.delete_cookie("access_token")

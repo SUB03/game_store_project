@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import create_async_engine
 
 from models import games_ownership
 
-import protobuf.users.users_service_pb2_grpc as users_service_pb2_grpc
-from protobuf.users.users_service_pb2 import (
+import users_proto.users_service_pb2_grpc as users_service_pb2_grpc
+from users_proto.users_service_pb2 import (
     AddGameToUserRequest,
     AddGameToUserResponse,
     HasGameRequest,

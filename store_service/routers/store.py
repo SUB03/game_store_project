@@ -1,7 +1,6 @@
 from typing import Annotated
 
 from fastapi import HTTPException, routing, Depends, status, Request, Cookie
-import grpc
 
 from store_service.schemas.games import Price
 from store_service.engine import engine

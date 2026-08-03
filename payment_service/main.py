@@ -2,8 +2,8 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
 
 import grpc, asyncio
-import protobuf.payment.payment_service_pb2 as payment_service_pb2
-import protobuf.payment.payment_service_pb2_grpc as payment_service_pb2_grpc
+import payment_proto.payment_service_pb2 as payment_service_pb2
+import payment_proto.payment_service_pb2_grpc as payment_service_pb2_grpc
 
 from async_yookassa import YooKassaClient
 from async_yookassa.models.payment import PaymentRequest, Amount, RedirectConfirmationRequest

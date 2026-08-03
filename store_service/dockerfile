@@ -9,6 +9,14 @@ RUN pip install --no-cache-dir --upgrade pip \
 COPY ./store_service /src/store_service
 COPY .env /src/store_service
 
+# installs protos
+COPY ./shared/protobufs /src/protobufs
+WORKDIR /src/protobufs
+RUN rm -rf ./src/*.egg-info ./build .eggs \
+    && python -m pip install --no-cache-dir .
+RUN python -m pip install .
+WORKDIR /src
+
 EXPOSE 8001
 
 CMD ["fastapi", "run", "store_service/main.py", "--port", "8001"]

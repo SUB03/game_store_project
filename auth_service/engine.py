@@ -1,14 +1,6 @@
-from contextlib import asynccontextmanager
-
-from fastapi import FastAPI
 from sqlalchemy import MetaData
 from sqlalchemy.ext.asyncio import create_async_engine
 
 engine = create_async_engine("postgresql+psycopg://postgres:postgres@postgres:5432/learning")
 
 metadata_obj = MetaData()
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
-    await engine.dispose()

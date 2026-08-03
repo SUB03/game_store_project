@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from store_service.protobuf.payment import payment_service_pb2 as store__service_dot_protobuf_dot_payment_dot_payment__service__pb2
+from users_proto import users_service_pb2 as users__proto_dot_users__service__pb2
 
 GRPC_GENERATED_VERSION = '1.83.0'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in store_service/protobuf/payment/payment_service_pb2_grpc.py depends on'
+        + ' but the generated code in users_proto/users_service_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class PaymentServiceStub:
+class UserServiceStub:
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,59 +34,59 @@ class PaymentServiceStub:
         Args:
             channel: A grpc.Channel.
         """
-        self.MakePayment = channel.unary_unary(
-                '/PaymentService/MakePayment',
-                request_serializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
-                response_deserializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.FromString,
+        self.HasGame = channel.unary_unary(
+                '/users.v1.UserService/HasGame',
+                request_serializer=users__proto_dot_users__service__pb2.HasGameRequest.SerializeToString,
+                response_deserializer=users__proto_dot_users__service__pb2.HasGameResponse.FromString,
                 _registered_method=True)
-        self.PaymentNotification = channel.unary_unary(
-                '/PaymentService/PaymentNotification',
-                request_serializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
-                response_deserializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
+        self.AddGameToUser = channel.unary_unary(
+                '/users.v1.UserService/AddGameToUser',
+                request_serializer=users__proto_dot_users__service__pb2.AddGameToUserRequest.SerializeToString,
+                response_deserializer=users__proto_dot_users__service__pb2.AddGameToUserResponse.FromString,
                 _registered_method=True)
 
 
-class PaymentServiceServicer:
+class UserServiceServicer:
     """Missing associated documentation comment in .proto file."""
 
-    def MakePayment(self, request, context):
+    def HasGame(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def PaymentNotification(self, request, context):
+    def AddGameToUser(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_PaymentServiceServicer_to_server(servicer, server):
+def add_UserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'MakePayment': grpc.unary_unary_rpc_method_handler(
-                    servicer.MakePayment,
-                    request_deserializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.FromString,
-                    response_serializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.SerializeToString,
+            'HasGame': grpc.unary_unary_rpc_method_handler(
+                    servicer.HasGame,
+                    request_deserializer=users__proto_dot_users__service__pb2.HasGameRequest.FromString,
+                    response_serializer=users__proto_dot_users__service__pb2.HasGameResponse.SerializeToString,
             ),
-            'PaymentNotification': grpc.unary_unary_rpc_method_handler(
-                    servicer.PaymentNotification,
-                    request_deserializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.FromString,
-                    response_serializer=store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.SerializeToString,
+            'AddGameToUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.AddGameToUser,
+                    request_deserializer=users__proto_dot_users__service__pb2.AddGameToUserRequest.FromString,
+                    response_serializer=users__proto_dot_users__service__pb2.AddGameToUserResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'PaymentService', rpc_method_handlers)
+            'users.v1.UserService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('PaymentService', rpc_method_handlers)
+    server.add_registered_method_handlers('users.v1.UserService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class PaymentService:
+class UserService:
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def MakePayment(request,
+    def HasGame(request,
             target,
             options=(),
             channel_credentials=None,
@@ -99,9 +99,9 @@ class PaymentService:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/PaymentService/MakePayment',
-            store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentRequest.SerializeToString,
-            store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.MakePaymentResponse.FromString,
+            '/users.v1.UserService/HasGame',
+            users__proto_dot_users__service__pb2.HasGameRequest.SerializeToString,
+            users__proto_dot_users__service__pb2.HasGameResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -113,7 +113,7 @@ class PaymentService:
             _registered_method=True)
 
     @staticmethod
-    def PaymentNotification(request,
+    def AddGameToUser(request,
             target,
             options=(),
             channel_credentials=None,
@@ -126,9 +126,9 @@ class PaymentService:
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/PaymentService/PaymentNotification',
-            store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationRequest.SerializeToString,
-            store__service_dot_protobuf_dot_payment_dot_payment__service__pb2.PaymentNotificationResponse.FromString,
+            '/users.v1.UserService/AddGameToUser',
+            users__proto_dot_users__service__pb2.AddGameToUserRequest.SerializeToString,
+            users__proto_dot_users__service__pb2.AddGameToUserResponse.FromString,
             options,
             channel_credentials,
             insecure,

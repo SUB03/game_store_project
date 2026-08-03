@@ -1,0 +1,16 @@
+[project]
+name = "protobufs"
+version = "1.0.0"
+requires-python = ">= 3.14"
+dependencies = [
+    "protobuf==7.35.1",
+    "grpcio>=1.83.0",
+    "grpcio-tools>=1.83.0",
+]
+
+[build-system]
+requires = ["setuptools >= 77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
