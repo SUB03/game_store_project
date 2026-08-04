@@ -17,6 +17,7 @@ router = routing.APIRouter(
 
 @router.get("/games")
 async def get_games(page: int = 1, per_page: int = 10):
+    #TODO: add search filters
     if page < 1 or per_page < 1:
         raise HTTPException(status_code=400, detail="page and per_page must be >= 1")
     

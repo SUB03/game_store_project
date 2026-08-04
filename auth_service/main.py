@@ -1,13 +1,17 @@
 from contextlib import asynccontextmanager
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
+from fastapi import FastAPI, Request, Response
 
-from fastapi import FastAPI
+import time
 import yaml, atexit
 import logging
 import logging.config
 import logging.handlers
+from typing import Awaitable, Callable
 
 from auth_service.engine import engine
 from auth_service.routers import users
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,15 +30,45 @@ def setup_logging():
         queue_handler.listener.start()
         atexit.register(queue_handler.listener.stop)
 
+REQUEST_COUNT = Counter(
+    "fastapi_requests_total",
+    "Total HTTP requests",
+    ["method", "endpoint", "status"]
+)
+
+REQUEST_LATENCY = Histogram(
+    "fastapi_request_duration_seconds",
+    "Request latency",
+    ["endpoint"]
+)
 
 logger = logging.getLogger("auth_service")
 
 api = FastAPI(title="my app", lifespan=lifespan)
 api.include_router(users.router)
 
+@api.middleware("http")
+async def metrics_middleware(request: Request, call_next: Callable[[Request], Awaitable[Response]]):
+    start = time.time()
+    response = await call_next(request)
+    duration = time.time() - start
+
+    REQUEST_COUNT.labels(
+        request.method,
+        request.url.path,
+        response.status_code
+    ).inc()
+
+    REQUEST_LATENCY.labels(request.url.path).observe(duration)
+    return response
+
 @api.get('/')
 def index():
     logger.info("visited root")
     return {"message": "Hello world"}
+
+@api.get("/metrics")
+def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 #TODO: schedule token table cleanup
