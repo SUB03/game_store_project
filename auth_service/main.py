@@ -31,13 +31,13 @@ def setup_logging():
         atexit.register(queue_handler.listener.stop)
 
 REQUEST_COUNT = Counter(
-    "fastapi_requests_total",
+    "http_requests_total",
     "Total HTTP requests",
     ["method", "endpoint", "status"]
 )
 
 REQUEST_LATENCY = Histogram(
-    "fastapi_request_duration_seconds",
+    "http_request_duration_seconds",
     "Request latency",
     ["endpoint"]
 )
@@ -63,12 +63,12 @@ async def metrics_middleware(request: Request, call_next: Callable[[Request], Aw
     return response
 
 @api.get('/')
-def index():
+async def index():
     logger.info("visited root")
     return {"message": "Hello world"}
 
 @api.get("/metrics")
-def metrics():
+async def metrics():
     return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 #TODO: schedule token table cleanup
